@@ -10,10 +10,20 @@ visual_model = robot.visual_model
 
 viz = GepettoVisualizer(model, collision_model, visual_model)
 
-viz.initViewer()
-viz.loadViewerModel()
+robot.setVisualizer(viz)
+robot.initViewer(loadModel=True)
 
-# Display a robot configuration.
-q0 = pin.neutral(model)
-viz.display(q0)
-print("display model end.")
+visualObj = robot.visual_model.geometryObjects[4]  # 3D object representing the robot forarm
+visualName = visualObj.name                        # Name associated to this object
+visualRef = robot.getViewerNodeName(visualObj, pin.GeometryType.VISUAL)    # Viewer reference (string) representing this object
+
+q1 = (1, 1, 1, 1, 0, 0, 0)  # x, y, z, quaternion
+robot.viewer.gui.applyConfiguration(visualRef, q1)
+robot.viewer.gui.refresh()  # Refresh the window.
+
+
+rgbt = [1.0, 0.2, 0.2, 1.0]  # red, green, blue, transparency
+robot.viewer.gui.addSphere("world/sphere", .1, rgbt)  # .1 is the radius
+
+robot.viewer.gui.applyConfiguration("world/sphere", (.5, .1, .2, 1.,0.,0.,0. ))
+robot.viewer.gui.refresh()  # Refresh the window.
