@@ -5,7 +5,7 @@ from numpy.linalg import norm
 import pinocchio as pin
 import example_robot_data as robex
 from scipy.optimize import fmin_bfgs
-from utils.meshcat_viewer_wrapper import MeshcatVisualizer, colors  # noqa: E402
+from utils.meshcat_viewer_wrapper import MeshcatVisualizer, colors
 
 
 robot = robex.load('ur5')
@@ -89,5 +89,57 @@ for i in range(200):
     viz.display(q)
     time.sleep(1e-2)
 
+
+# Add red box in the viewer
+boxID = "world/box"
+try:
+    viz.delete(ballID)
+except:
+    pass
+
+viz.addBox(boxID, [0.1, 0.2, 0.1], colors.magenta)
+
+oMbox = pin.SE3(np.eye(3), np.array([0.5, 0.1, 0.2]))
+
+viz.applyConfiguration(boxID, oMbox)
+
+boxMtarget = pin.SE3(pin.utils.rotate('x', -np.pi / 2), np.array([0., -0.1, 0.]))
+oMtarget = oMbox * boxMtarget
+
+
+def cost(q):
+    """Compute score from a configuration"""
+    oMtip = robot.framePlacement(q, 22)
+    # Align tip placement and facet placement
+    return norm(pin.log(oMtip.inverse() * oMtarget).vector)
+
+
+def callback(q):
+    viz.display(q)
+    time.sleep(1e-2)
+
+
+qopt = fmin_bfgs(cost, robot.q0, callback=callback)
+print('The robot finally reached effector placement at\n', robot.placement(qopt, 6))
+
+q = qopt.copy()
+vq = np.array([2., 0, 0, 4., 0, 0])
+idx = 6
+
+oMend = robot.placement(q, idx)
+endMbox = oMend.inverse() * oMbox  # Placement of the box wrt end effector
+
+for i in range(100):
+    # Chose new configuration of the robot
+    q += vq / 40
+    q[2] = 1.71 + math.sin(i * 0.05) / 2
+
+    oMend = robot.placement(q, idx)
+    oMbox = oMend * endMbox
+
+    # Display new configuration for robot and box
+    viz.applyConfiguration(boxID, oMbox)
+    viz.display(q)
+    time.sleep(1e-2)
 
 input('Press ENTER to exit.')
