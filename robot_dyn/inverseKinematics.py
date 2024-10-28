@@ -24,4 +24,23 @@ for t in range(1000):
     viz.display(q)
     time.sleep(DT / 10)
 
+IDX_TOOL = robot.model.getFrameId('frametool')
+IDX_BASIS = robot.model.getFrameId('framebasis')
+
+print(robot.model.frames[IDX_TOOL])
+
+pin.framesForwardKinematics(robot.model, robot.data, q)
+
+oMtool = robot.data.oMf[IDX_TOOL]
+oMbasis = robot.data.oMf[IDX_BASIS]
+
+print("Tool placement:", oMtool)
+print("Basis placement:", oMbasis)
+
+### Computing Jacobian
+
+Jtool = pin.computeFrameJacobian(robot.model, robot.data, q, IDX_TOOL)
+print("Jtool shape = ", Jtool.shape)
+print('Jtool = ', Jtool)
+
 input('Press ENTER to exit.')
