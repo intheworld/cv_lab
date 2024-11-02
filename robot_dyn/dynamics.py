@@ -45,6 +45,7 @@ b = pin.nle(robot.model, robot.data, q, vq)
 tauq = np.random.rand(robot.model.nv)
 aq =  inv(M) @ (tauq - b)
 
+# 逆动力学主要算法，RNEA (recursive Newton-Euler Algorithm)，作用是已知加速度求关节力矩
 print(norm(pin.rnea(robot.model, robot.data, q, vq, aq) - tauq))
 dt = 2e-3
 N_steps = 5000
