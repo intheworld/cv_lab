@@ -1,0 +1,4 @@
+name: robotics
+dependencies:
+  - gymnasium=0.29.1
+  - stable_baseline3=2.3.2
