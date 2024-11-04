@@ -58,4 +58,28 @@ plt.show()
 
 print(f"Return of the episode: {sum(episode[2::3])}")
 
-# input('Press ENTER to exit.')
+### PPO
+
+env = gym.make("InvertedPendulum-v4")
+second_policy = PPO("MlpPolicy", env, verbose=1)
+second_policy.learn(total_timesteps=100_000, progress_bar=False)
+
+
+def policy_closure(policy):
+    """Utility function to turn our policy instance into a function.
+    Args:
+        policy: Policy to turn into a function.
+    Returns:
+        Function from observation to policy action.
+    """
+
+    def policy_function(observation):
+        action, _ = policy.predict(observation)
+        return action
+
+    return policy_function
+
+episode = rollout(policy_closure(second_policy), show=True)
+
+
+input('Press ENTER to exit.')
