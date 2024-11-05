@@ -62,7 +62,7 @@ print(f"Return of the episode: {sum(episode[2::3])}")
 
 env = gym.make("InvertedPendulum-v4")
 second_policy = PPO("MlpPolicy", env, verbose=1)
-second_policy.learn(total_timesteps=100_000, progress_bar=False)
+second_policy.learn(total_timesteps=1_000, progress_bar=False)
 
 
 def policy_closure(policy):
@@ -80,6 +80,19 @@ def policy_closure(policy):
     return policy_function
 
 episode = rollout(policy_closure(second_policy), show=True)
+
+erudite_policy = PPO(
+    "MlpPolicy",
+    env,
+    tensorboard_log="./inverted_pendulum_tensorboard/",
+    verbose=0,
+)
+
+erudite_policy.learn(
+    total_timesteps=1_000_000,
+    progress_bar=False,
+    tb_log_name="erudite",
+)
 
 
 input('Press ENTER to exit.')
